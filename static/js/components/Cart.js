@@ -1,55 +1,76 @@
-// Shopping cart component
+// Cart component for Zoorkhan store
 class Cart {
     constructor() {
-        this.items = JSON.parse(localStorage.getItem('cart_items') || '[]');
+        this.items = [];
         this.isOpen = false;
-        this.render();
-        this.bindEvents();
+        this.init();
     }
 
-    addItem(productId, quantity = 1) {
-        // Find product in items
-        const existingItem = this.items.find(item => item.product_id === productId);
+    init() {
+        // Load cart from localStorage
+        this.loadFromStorage();
+        
+        // Setup cart overlay click handler
+        const overlay = document.getElementById('cart-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', () => this.close());
+        }
+
+        // Setup ESC key handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+
+        this.updateCartCount();
+    }
+
+    addItem(productId, name, price, imageUrl = '', quantity = 1) {
+        const existingItem = this.items.find(item => item.productId === productId);
         
         if (existingItem) {
             existingItem.quantity += quantity;
         } else {
             this.items.push({
-                product_id: productId,
-                quantity: quantity
+                productId,
+                name,
+                price,
+                imageUrl,
+                quantity
             });
         }
-        
+
         this.saveToStorage();
+        this.updateCartCount();
         this.render();
-        this.showToast('محصول به سبد خرید اضافه شد', 'success');
         
-        // Trigger cart update event
-        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        // Show success message
+        if (window.app) {
+            window.app.showToast(`${name} به سبد خرید اضافه شد`, 'success');
+        }
+
+        // Auto-open cart for better UX
+        this.open();
     }
 
     removeItem(productId) {
-        this.items = this.items.filter(item => item.product_id !== productId);
+        this.items = this.items.filter(item => item.productId !== productId);
         this.saveToStorage();
+        this.updateCartCount();
         this.render();
-        this.showToast('محصول از سبد خرید حذف شد', 'info');
-        
-        // Trigger cart update event
-        window.dispatchEvent(new CustomEvent('cartUpdated'));
     }
 
     updateQuantity(productId, quantity) {
-        const item = this.items.find(item => item.product_id === productId);
+        const item = this.items.find(item => item.productId === productId);
         if (item) {
             if (quantity <= 0) {
                 this.removeItem(productId);
             } else {
                 item.quantity = quantity;
                 this.saveToStorage();
+                this.updateCartCount();
                 this.render();
-                
-                // Trigger cart update event
-                window.dispatchEvent(new CustomEvent('cartUpdated'));
             }
         }
     }
@@ -57,42 +78,38 @@ class Cart {
     clear() {
         this.items = [];
         this.saveToStorage();
+        this.updateCartCount();
         this.render();
-        
-        // Trigger cart update event
-        window.dispatchEvent(new CustomEvent('cartUpdated'));
+    }
+
+    getTotal() {
+        return this.items.reduce((total, item) => total + (item.price * item.quantity), 0);
     }
 
     getItemCount() {
-        return this.items.reduce((total, item) => total + item.quantity, 0);
-    }
-
-    async getTotal() {
-        let total = 0;
-        for (const item of this.items) {
-            try {
-                const response = await window.api.getProduct(item.product_id);
-                total += response.product.price * item.quantity;
-            } catch (error) {
-                console.error('Error fetching product price:', error);
-            }
-        }
-        return total;
+        return this.items.reduce((count, item) => count + item.quantity, 0);
     }
 
     toggle() {
-        this.isOpen = !this.isOpen;
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+
+    open() {
+        this.isOpen = true;
         const sidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('cart-overlay');
         
-        if (this.isOpen) {
+        if (sidebar && overlay) {
             sidebar.classList.remove('translate-x-full');
             overlay.classList.remove('hidden');
-            this.loadCartItems();
-        } else {
-            sidebar.classList.add('translate-x-full');
-            overlay.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
         }
+        
+        this.render();
     }
 
     close() {
@@ -100,19 +117,24 @@ class Cart {
         const sidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('cart-overlay');
         
-        sidebar.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
+        if (sidebar && overlay) {
+            sidebar.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
 
-    async loadCartItems() {
-        const cartContent = document.getElementById('cart-content');
-        
+    render() {
+        const container = document.getElementById('cart-content');
+        if (!container) return;
+
         if (this.items.length === 0) {
-            cartContent.innerHTML = `
+            container.innerHTML = `
                 <div class="text-center py-8">
                     <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500">سبد خرید شما خالی است</p>
-                    <button onclick="window.cart.close(); app.showProducts()" class="btn-primary mt-4">
+                    <h3 class="text-lg font-medium text-gray-600 mb-2">سبد خرید خالی است</h3>
+                    <p class="text-gray-500 mb-4">هنوز محصولی به سبد خرید اضافه نکرده‌اید</p>
+                    <button onclick="window.cart.close(); app.showProducts()" class="btn-primary">
                         مشاهده محصولات
                     </button>
                 </div>
@@ -120,167 +142,124 @@ class Cart {
             return;
         }
 
-        cartContent.innerHTML = `
-            <div class="flex items-center justify-between border-b pb-4 mb-4">
+        const total = this.getTotal();
+        const itemCount = this.getItemCount();
+
+        container.innerHTML = `
+            <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold">سبد خرید</h2>
-                <button onclick="window.cart.close()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
+                <button onclick="window.cart.close()" class="p-2 hover:bg-gray-100 rounded-full">
+                    <i class="fas fa-times text-gray-600"></i>
                 </button>
             </div>
-            <div id="cart-items" class="space-y-4 mb-6">
-                <div class="text-center py-4">
-                    <div class="loading-spinner mx-auto"></div>
-                    <p class="text-gray-500 mt-2">در حال بارگذاری...</p>
-                </div>
-            </div>
-        `;
 
-        try {
-            let cartItemsHTML = '';
-            let totalPrice = 0;
-
-            for (const item of this.items) {
-                const response = await window.api.getProduct(item.product_id);
-                const product = response.product;
-                const itemTotal = product.price * item.quantity;
-                totalPrice += itemTotal;
-
-                cartItemsHTML += `
-                    <div class="cart-item flex items-center space-x-reverse space-x-4 p-4 border rounded-lg">
+            <div class="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                ${this.items.map(item => `
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <img 
-                            src="${product.image_url || 'https://via.placeholder.com/80x80'}" 
-                            alt="${product.name_persian}"
+                            src="${item.imageUrl || '/static/images/product-placeholder.jpg'}" 
+                            alt="${item.name}"
                             class="w-16 h-16 object-cover rounded"
+                            onerror="this.src='/static/images/product-placeholder.jpg'"
                         >
                         <div class="flex-1">
-                            <h4 class="font-medium text-sm">${product.name_persian}</h4>
-                            <p class="text-primary font-bold text-sm price">
-                                ${new Intl.NumberFormat('fa-IR').format(product.price)} تومان
-                            </p>
+                            <h4 class="font-medium text-sm mb-1">${item.name}</h4>
+                            <div class="text-primary font-bold text-sm">${this.formatPrice(item.price)}</div>
                         </div>
-                        <div class="flex items-center space-x-reverse space-x-2">
+                        <div class="flex items-center gap-2">
                             <button 
-                                onclick="window.cart.updateQuantity(${product.id}, ${item.quantity - 1})"
-                                class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                                onclick="window.cart.updateQuantity(${item.productId}, ${item.quantity - 1})"
+                                class="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-full text-sm"
                             >
-                                <i class="fas fa-minus text-xs"></i>
+                                -
                             </button>
                             <span class="w-8 text-center text-sm">${item.quantity}</span>
                             <button 
-                                onclick="window.cart.updateQuantity(${product.id}, ${item.quantity + 1})"
-                                class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                                onclick="window.cart.updateQuantity(${item.productId}, ${item.quantity + 1})"
+                                class="w-8 h-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 rounded-full text-sm"
                             >
-                                <i class="fas fa-plus text-xs"></i>
+                                +
+                            </button>
+                            <button 
+                                onclick="window.cart.removeItem(${item.productId})"
+                                class="w-8 h-8 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-full ml-2"
+                            >
+                                <i class="fas fa-trash text-xs"></i>
                             </button>
                         </div>
-                        <button 
-                            onclick="window.cart.removeItem(${product.id})"
-                            class="text-red-500 hover:text-red-700"
-                        >
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
                     </div>
-                `;
-            }
+                `).join('')}
+            </div>
 
-            document.getElementById('cart-items').innerHTML = cartItemsHTML;
+            <div class="border-t pt-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-gray-600">تعداد اقلام:</span>
+                    <span class="font-medium">${itemCount} عدد</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-bold">
+                    <span>مجموع:</span>
+                    <span class="text-primary">${this.formatPrice(total)}</span>
+                </div>
+            </div>
 
-            // Add total and checkout button
-            cartContent.innerHTML += `
-                <div class="border-t pt-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="font-bold text-lg">مجموع:</span>
-                        <span class="font-bold text-xl text-primary price">
-                            ${new Intl.NumberFormat('fa-IR').format(totalPrice)} تومان
-                        </span>
-                    </div>
-                    
-                    ${window.auth.isAuthenticated() ? `
-                        <button onclick="window.cart.checkout()" class="btn-primary w-full mb-2">
-                            <i class="fas fa-credit-card ml-2"></i>
-                            تسویه حساب
-                        </button>
-                    ` : `
-                        <button onclick="window.cart.close(); app.showLogin()" class="btn-primary w-full mb-2">
-                            ورود برای تسویه حساب
-                        </button>
-                    `}
-                    
-                    <button onclick="window.cart.clear()" class="btn-outline w-full text-sm">
-                        پاک کردن سبد خرید
+            <div class="space-y-3">
+                <button 
+                    onclick="window.cart.close(); app.showCheckout()" 
+                    class="w-full btn-primary py-3"
+                    ${!window.auth || !window.auth.isAuthenticated() ? 'disabled' : ''}
+                >
+                    ${window.auth && window.auth.isAuthenticated() ? 'ادامه خرید' : 'ابتدا وارد شوید'}
+                </button>
+                ${this.items.length > 0 ? `
+                    <button 
+                        onclick="if(confirm('آیا مطمئن هستید؟')) window.cart.clear()" 
+                        class="w-full btn-outline py-3"
+                    >
+                        پاک کردن سبد
                     </button>
-                </div>
-            `;
-
-        } catch (error) {
-            console.error('Error loading cart items:', error);
-            document.getElementById('cart-items').innerHTML = `
-                <div class="text-center py-4 text-red-500">
-                    <p>خطا در بارگذاری محصولات</p>
-                </div>
-            `;
-        }
+                ` : ''}
+            </div>
+        `;
     }
 
-    async checkout() {
-        if (!window.auth.isAuthenticated()) {
-            this.close();
-            app.showLogin();
-            return;
+    updateCartCount() {
+        const count = this.getItemCount();
+        if (window.header) {
+            window.header.updateCartCount(count);
         }
-
-        if (this.items.length === 0) {
-            this.showToast('سبد خرید شما خالی است', 'error');
-            return;
-        }
-
-        // Show checkout form
-        app.showCheckout();
-        this.close();
-    }
-
-    render() {
-        // Cart sidebar is already in the HTML, we just need to update its content when opened
-    }
-
-    bindEvents() {
-        // Close cart when clicking overlay
-        document.getElementById('cart-overlay').addEventListener('click', () => {
-            this.close();
-        });
-
-        // Close cart with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isOpen) {
-                this.close();
-            }
-        });
     }
 
     saveToStorage() {
-        localStorage.setItem('cart_items', JSON.stringify(this.items));
+        localStorage.setItem('cart', JSON.stringify(this.items));
     }
 
-    showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type} fade-in`;
-        toast.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} ml-2"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        document.getElementById('toast-container').appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
+    loadFromStorage() {
+        try {
+            const stored = localStorage.getItem('cart');
+            if (stored) {
+                this.items = JSON.parse(stored);
+            }
+        } catch (error) {
+            console.error('Error loading cart from storage:', error);
+            this.items = [];
+        }
+    }
+
+    formatPrice(price) {
+        return new Intl.NumberFormat('fa-IR').format(price) + ' تومان';
+    }
+
+    // Get cart data for checkout
+    getCartData() {
+        return {
+            items: this.items.map(item => ({
+                product_id: item.productId,
+                quantity: item.quantity
+            })),
+            total: this.getTotal()
+        };
     }
 }
 
-// Initialize cart when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.cart = new Cart();
-});
+// Initialize cart
+window.cart = new Cart();
