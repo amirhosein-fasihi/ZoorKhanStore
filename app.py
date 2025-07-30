@@ -54,13 +54,12 @@ with app.app_context():
     
     admin = User.query.filter_by(email='admin@zoorkhan.com').first()
     if not admin:
-        admin_user = User(
-            username='admin',
-            email='admin@zoorkhan.com',
-            password_hash=generate_password_hash('admin123'),
-            role='admin',
-            full_name='مدیر سیستم'
-        )
+        admin_user = User()
+        admin_user.username = 'admin'
+        admin_user.email = 'admin@zoorkhan.com'
+        admin_user.password_hash = generate_password_hash('admin123')
+        admin_user.role = 'admin'
+        admin_user.full_name = 'مدیر سیستم'
         db.session.add(admin_user)
         db.session.commit()
         logging.info("Admin user created: admin@zoorkhan.com / admin123")

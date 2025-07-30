@@ -31,15 +31,14 @@ def register():
             return jsonify({'error': 'این نام کاربری قبلا انتخاب شده است'}), 400
         
         # Create new user
-        user = User(
-            username=data['username'],
-            email=data['email'],
-            password_hash=generate_password_hash(data['password']),
-            full_name=data['full_name'],
-            phone=data.get('phone', ''),
-            address=data.get('address', ''),
-            role='customer'
-        )
+        user = User()
+        user.username = data['username']
+        user.email = data['email']
+        user.password_hash = generate_password_hash(data['password'])
+        user.full_name = data['full_name']
+        user.phone = data.get('phone', '')
+        user.address = data.get('address', '')
+        user.role = 'customer'
         
         db.session.add(user)
         db.session.commit()
@@ -157,23 +156,22 @@ def create_product():
             if not data.get(field):
                 return jsonify({'error': f'{field} الزامی است'}), 400
         
-        product = Product(
-            name=data['name'],
-            name_persian=data['name_persian'],
-            description=data.get('description', ''),
-            description_persian=data.get('description_persian', ''),
-            price=float(data['price']),
-            stock_quantity=int(data.get('stock_quantity', 0)),
-            image_url=data.get('image_url', ''),
-            category_id=int(data['category_id']),
-            brand=data.get('brand', ''),
-            weight=data.get('weight', ''),
-            serving_size=data.get('serving_size', ''),
-            servings_per_container=data.get('servings_per_container', 0),
-            ingredients=data.get('ingredients', ''),
-            usage_instructions=data.get('usage_instructions', ''),
-            warnings=data.get('warnings', '')
-        )
+        product = Product()
+        product.name = data['name']
+        product.name_persian = data['name_persian']
+        product.description = data.get('description', '')
+        product.description_persian = data.get('description_persian', '')
+        product.price = float(data['price'])
+        product.stock_quantity = int(data.get('stock_quantity', 0))
+        product.image_url = data.get('image_url', '')
+        product.category_id = int(data['category_id'])
+        product.brand = data.get('brand', '')
+        product.weight = data.get('weight', '')
+        product.serving_size = data.get('serving_size', '')
+        product.servings_per_container = data.get('servings_per_container', 0)
+        product.ingredients = data.get('ingredients', '')
+        product.usage_instructions = data.get('usage_instructions', '')
+        product.warnings = data.get('warnings', '')
         
         db.session.add(product)
         db.session.commit()
@@ -208,11 +206,10 @@ def create_category():
         if not data.get('name') or not data.get('name_persian'):
             return jsonify({'error': 'نام و نام فارسی الزامی است'}), 400
         
-        category = Category(
-            name=data['name'],
-            name_persian=data['name_persian'],
-            description=data.get('description', '')
-        )
+        category = Category()
+        category.name = data['name']
+        category.name_persian = data['name_persian']
+        category.description = data.get('description', '')
         
         db.session.add(category)
         db.session.commit()
@@ -268,25 +265,23 @@ def create_order():
             })
         
         # Create order
-        order = Order(
-            user_id=user.id,
-            total_amount=total_amount,
-            shipping_address=data['shipping_address'],
-            phone=data['phone'],
-            notes=data.get('notes', '')
-        )
+        order = Order()
+        order.user_id = user.id
+        order.total_amount = total_amount
+        order.shipping_address = data['shipping_address']
+        order.phone = data['phone']
+        order.notes = data.get('notes', '')
         
         db.session.add(order)
         db.session.flush()  # Get order ID
         
         # Add order items and update stock
         for item_data in order_items:
-            order_item = OrderItem(
-                order_id=order.id,
-                product_id=item_data['product'].id,
-                quantity=item_data['quantity'],
-                price=item_data['price']
-            )
+            order_item = OrderItem()
+            order_item.order_id = order.id
+            order_item.product_id = item_data['product'].id
+            order_item.quantity = item_data['quantity']
+            order_item.price = item_data['price']
             db.session.add(order_item)
             
             # Update stock
@@ -368,20 +363,19 @@ def create_blog_post():
             if not data.get(field):
                 return jsonify({'error': f'{field} الزامی است'}), 400
         
-        post = BlogPost(
-            title=data['title'],
-            title_persian=data['title_persian'],
-            content=data['content'],
-            content_persian=data['content_persian'],
-            excerpt=data.get('excerpt', ''),
-            excerpt_persian=data.get('excerpt_persian', ''),
-            image_url=data.get('image_url', ''),
-            author_id=user.id,
-            meta_title=data.get('meta_title', ''),
-            meta_description=data.get('meta_description', ''),
-            slug=data.get('slug', ''),
-            is_published=data.get('is_published', False)
-        )
+        post = BlogPost()
+        post.title = data['title']
+        post.title_persian = data['title_persian']
+        post.content = data['content']
+        post.content_persian = data['content_persian']
+        post.excerpt = data.get('excerpt', '')
+        post.excerpt_persian = data.get('excerpt_persian', '')
+        post.image_url = data.get('image_url', '')
+        post.author_id = user.id
+        post.meta_title = data.get('meta_title', '')
+        post.meta_description = data.get('meta_description', '')
+        post.slug = data.get('slug', '')
+        post.is_published = data.get('is_published', False)
         
         db.session.add(post)
         db.session.commit()
@@ -414,7 +408,8 @@ def subscribe_newsletter():
                 db.session.commit()
                 return jsonify({'message': 'عضویت شما در خبرنامه فعال شد'}), 200
         
-        newsletter = Newsletter(email=data['email'])
+        newsletter = Newsletter()
+        newsletter.email = data['email']
         db.session.add(newsletter)
         db.session.commit()
         

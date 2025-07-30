@@ -29,8 +29,8 @@ class Header {
                     <div class="flex items-center justify-between h-16">
                         <!-- Logo -->
                         <div class="flex items-center cursor-pointer" onclick="app.showHome()">
-                            <img src="/static/assets/logo.svg" alt="زورخانه" class="h-10 w-10 ml-2">
-                            <span class="text-xl font-bold text-primary">زورخانه</span>
+                            <img src="/static/assets/logo.svg" alt="زورخان" class="h-10 w-10 ml-2">
+                            <span class="text-xl font-bold text-primary">زورخان</span>
                         </div>
 
                         <!-- Desktop Navigation -->

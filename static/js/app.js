@@ -167,9 +167,9 @@ class App {
             <section class="hero-gradient text-white py-20">
                 <div class="container mx-auto px-4 text-center">
                     <div class="flex justify-center mb-8">
-                        <img src="/static/assets/logo.svg" alt="زورخانه" class="h-24 w-24">
+                        <img src="/static/assets/logo.svg" alt="زورخان" class="h-24 w-24">
                     </div>
-                    <h1 class="text-4xl md:text-6xl font-bold mb-6">زورخانه</h1>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">زورخان</h1>
                     <p class="text-xl md:text-2xl mb-8 opacity-90">بهترین مکمل‌های ورزشی برای قهرمانان</p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
                         <button onclick="app.showProducts()" class="btn-secondary text-lg px-8 py-4">

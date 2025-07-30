@@ -11,7 +11,7 @@ class Blog {
         return `
             <div class="container mx-auto px-4 py-8">
                 <div class="text-center mb-12">
-                    <h1 class="text-4xl font-bold mb-4">بلاگ زورخانه</h1>
+                    <h1 class="text-4xl font-bold mb-4">بلاگ زورخان</h1>
                     <p class="text-xl text-gray-600">آخرین مطالب و نکات تغذیه‌ای و ورزشی</p>
                 </div>
                 
