@@ -157,10 +157,10 @@ class Cart {
                 ${this.items.map(item => `
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <img 
-                            src="${item.imageUrl || '/static/images/product-placeholder.jpg'}" 
+                            src="${item.imageUrl || '/static/images/product-placeholder.svg'}" 
                             alt="${item.name}"
                             class="w-16 h-16 object-cover rounded"
-                            onerror="this.src='/static/images/product-placeholder.jpg'"
+                            onerror="this.src='/static/images/product-placeholder.svg'"
                         >
                         <div class="flex-1">
                             <h4 class="font-medium text-sm mb-1">${item.name}</h4>

@@ -8,10 +8,10 @@ class ProductCard {
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div class="relative">
                     <img 
-                        src="${product.image_url || '/static/images/product-placeholder.jpg'}" 
+                        src="${product.image_url || '/static/images/product-placeholder.svg'}" 
                         alt="${product.name_persian}"
                         class="w-full h-48 object-cover"
-                        onerror="this.src='/static/images/product-placeholder.jpg'"
+                        onerror="this.src='/static/images/product-placeholder.svg'"
                     >
                     ${discountPercent > 0 ? `
                         <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm font-bold">
@@ -122,10 +122,10 @@ class ProductCard {
                     <!-- Product Image -->
                     <div class="relative">
                         <img 
-                            src="${product.image_url || '/static/images/product-placeholder.jpg'}" 
+                            src="${product.image_url || '/static/images/product-placeholder.svg'}" 
                             alt="${product.name_persian}"
                             class="w-full rounded-lg shadow-lg"
-                            onerror="this.src='/static/images/product-placeholder.jpg'"
+                            onerror="this.src='/static/images/product-placeholder.svg'"
                         >
                         ${discountPercent > 0 ? `
                             <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-2 rounded-full font-bold">

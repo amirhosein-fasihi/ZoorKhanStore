@@ -46,7 +46,46 @@
 
     <!-- Main App Container -->
     <div id="app" class="min-h-screen">
-        <!-- Content will be loaded here by JavaScript -->
+        <!-- Header will be rendered here -->
+        <header></header>
+        
+        <!-- Main content will be rendered here -->
+        <main></main>
+        
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-12 mt-16">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-4">
+                            <img src="/static/assets/logo.svg" alt="زورخان" class="h-10 w-10 ml-3">
+                            <h3 class="text-xl font-bold">زورخان</h3>
+                        </div>
+                        <p class="text-gray-300 mb-4">فروشگاه تخصصی مکمل‌های ورزشی با بیش از ۵ سال تجربه در ارائه بهترین محصولات تغذیه‌ای برای ورزشکاران.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">لینک‌های مفید</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><a href="#" onclick="app.showHome()" class="hover:text-white">خانه</a></li>
+                            <li><a href="#" onclick="app.showProducts()" class="hover:text-white">محصولات</a></li>
+                            <li><a href="#" onclick="app.showBlog()" class="hover:text-white">مقالات</a></li>
+                            <li><a href="#" onclick="app.showAbout()" class="hover:text-white">درباره ما</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-4">تماس با ما</h4>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-phone ml-2"></i> ۰۲۱-۱۲۳۴۵۶۷۸</li>
+                            <li><i class="fas fa-envelope ml-2"></i> info@zoorkhan.com</li>
+                            <li><i class="fas fa-map-marker-alt ml-2"></i> تهران، ایران</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; ۱۴۰۳ زورخان. تمامی حقوق محفوظ است.</p>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Toast notification container -->
@@ -75,5 +114,21 @@
     <script src="{{ url_for('static', filename='js/components/Dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/components/Blog.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Initialize the app -->
+    <script>
+        // Initialize the application when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the main app
+            window.app = new App();
+            
+            // Make sure all components are available
+            console.log('App initialized:', window.app);
+            console.log('API available:', window.api);
+            console.log('Auth available:', window.auth);
+            console.log('Header available:', window.header);
+            console.log('Cart available:', window.cart);
+        });
+    </script>
 </body>
 </html>
