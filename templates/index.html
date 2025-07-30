@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>زورخانه - فروشگاه مکمل‌های ورزشی</title>
+    <meta name="description" content="زورخانه - فروشگاه آنلاین مکمل‌های ورزشی و تغذیه‌ای با بهترین کیفیت و قیمت">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Persian/Arabic font -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'vazir': ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1f2937',
+                        'secondary': '#059669',
+                        'accent': '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-vazir bg-gray-50 text-gray-900" dir="rtl">
+    <!-- Loading spinner -->
+    <div id="loading" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-gray-600">در حال بارگذاری...</p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Content will be loaded here by JavaScript -->
+    </div>
+
+    <!-- Toast notification container -->
+    <div id="toast-container" class="fixed top-4 left-4 z-50 space-y-2"></div>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed top-0 left-0 h-full w-96 bg-white shadow-xl transform translate-x-full transition-transform duration-300 z-40 overflow-y-auto">
+        <div id="cart-content" class="p-6">
+            <!-- Cart content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Overlay for cart -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+    <!-- JavaScript libraries -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    <!-- Custom JavaScript modules -->
+    <script src="{{ url_for('static', filename='js/utils/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/Header.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/ProductCard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/Cart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/Admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/Dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/Blog.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
